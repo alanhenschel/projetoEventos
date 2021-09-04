@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  proeventos:
+    container_name: proeventos
+    image: proeventos
+    build:
+      context: /home/alanhenschel/projetos/pro-eventos/back/src
+    ports:
+      - "50420:80"
+      - "44361:443"
+    depends_on:
+      - "db"
+      - "pgadmin"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+80
+      - ASPNETCORE_HTTPS_PORT=44311
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=teste
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/dev_cert.pfx
+    volumes:
+      - ./conf.d/https/:/https/
+  db:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=app_user
+      - POSTGRES_PASSWORD=app_user
+      - POSTGRES_DB=pro_eventos
+    ports:
+      - "5432:5432"
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@domain.com
+      PGADMIN_DEFAULT_PASSWORD: SuperSecret
+    ports:
+      - "5050:80"
