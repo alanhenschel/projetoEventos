@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using ProEventos.Persistence;
 using ProEventos.Domain;
-using ProEventos.Persistence.Contexto;
 using ProEventos.Application.Contratos;
 using Microsoft.AspNetCore.Http;
 
@@ -21,7 +16,6 @@ namespace ProEventos.API.Controllers
         public EventoController(IEventoService eventoService)
         {
             this._eventoService = eventoService;
-
         }
 
         [HttpGet]
