@@ -86,7 +86,7 @@ namespace ProEventos.API.Controllers
             {
 
                 return this.StatusCode(StatusCodes.Status500InternalServerError,
-                    $"Erro ao tentar adcionar evento. Erro: {ex.Message}");
+                    $"Erro ao tentar adicionar evento. Erro: {ex.Message}");
             }
         }
 

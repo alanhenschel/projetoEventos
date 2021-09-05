@@ -27,11 +27,10 @@ namespace ProEventos.API
         {
             services.AddDbContext<ProEventosContext>(
                 context => context.UseNpgsql(Configuration.GetConnectionString("Default")));
-            services.AddControllers().AddJsonOptions(
-            options => { 
-                options.JsonSerializerOptions.PropertyNamingPolicy = new 
-                SnakeCasePropertyNamingPolicy();
-            });
+
+            services.AddControllers()
+                    .AddJsonOptions(options => {options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCasePropertyNamingPolicy();})
+                    .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddScoped<IEventoService, EventoService>();
             services.AddScoped<IGeralPersist, GeralPersistence>();
