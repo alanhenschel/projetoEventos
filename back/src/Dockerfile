@@ -13,7 +13,7 @@ COPY ["ProEventos.Persistence/ProEventos.Persistence.csproj", "ProEventos.Persis
 RUN dotnet restore "ProEventos.API/ProEventos.API.csproj"
 
 # Build da aplicacao
-COPY . ./
+COPY . .
 WORKDIR "/src/ProEventos.API"
 RUN dotnet build "ProEventos.API.csproj" -c Release -o /app/build
 

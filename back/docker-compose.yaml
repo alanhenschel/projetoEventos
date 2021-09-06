@@ -5,7 +5,8 @@ services:
     container_name: proeventos
     image: proeventos
     build:
-      context: /home/alanhenschel/projetos/pro-eventos/back/src
+      context: ./src
+      dockerfile: Dockerfile
     ports:
       - "50420:80"
       - "44361:443"
