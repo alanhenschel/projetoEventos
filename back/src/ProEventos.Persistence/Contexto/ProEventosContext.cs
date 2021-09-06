@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using ProEventos.Domain;
 
 namespace ProEventos.Persistence.Contexto
@@ -29,6 +30,17 @@ namespace ProEventos.Persistence.Contexto
                         .HasMany(e => e.RedesSociais)
                         .WithOne(rs => rs.Palestrante)
                         .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        // This inner class it's nescessary for the migrations
+        public class ProEventosContextDesignFactory : IDesignTimeDbContextFactory<ProEventosContext>
+        {
+            public ProEventosContext CreateDbContext(string[] args)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder<ProEventosContext>()
+                                        .UseNpgsql("Host=localhost;Port=5432;Database=pro_eventos;Username=app_user;Password=app_user");
+                return new ProEventosContext(optionsBuilder.Options);
+            }
         }
     }
 }
