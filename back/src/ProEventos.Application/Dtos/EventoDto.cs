@@ -1,4 +1,6 @@
-namespace ProEventos.API.Dtos
+using System.Collections.Generic;
+
+namespace ProEventos.Application.Dtos
 {
     public class EventoDto
     {
@@ -11,8 +13,8 @@ namespace ProEventos.API.Dtos
         public string Telefone { get; set; }
         public string Email { get; set; }
         
-        // public IEnumerable<Lote> Lotes { get; set; }
-        // public IEnumerable<RedeSocial> RedesSociais { get; set; }
-        // public IEnumerable<PalestranteEvento> PalestrantesEventos { get; set; }
+        public IEnumerable<LoteDto> Lotes { get; set; }
+        public IEnumerable<RedeSocialDto> RedesSociais { get; set; }
+        public IEnumerable<PalestranteDto> PalestrantesEventos { get; set; }
     }
 }
