@@ -41,7 +41,7 @@ namespace ProEventos.Persistence
             }
 
             query = query.OrderBy(p => p.Id)
-                         .Where(p => p.Nome.ToLower().Contains(nome.ToLower()));
+                         .Where(p => p.User.UserName.ToLower().Contains(nome.ToLower()));
 
             return await query.ToArrayAsync();
         }

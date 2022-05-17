@@ -1,11 +1,17 @@
 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using ProEventos.Domain;
+using ProEventos.Domain.Identity;
+using System;
 
 namespace ProEventos.Persistence.Contexto
 {
-    public class ProEventosContext : DbContext
+    public class ProEventosContext : IdentityDbContext<User, Role, Guid, IdentityUserClaim<Guid>, 
+                                                       UserRole, IdentityUserLogin<Guid>, 
+                                                       IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
     {
         public ProEventosContext(DbContextOptions<ProEventosContext> options) : base(options) { }
         public DbSet<Evento> Eventos { get; set; }
@@ -16,6 +22,24 @@ namespace ProEventos.Persistence.Contexto
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            // [N N]
+            modelBuilder.Entity<UserRole>(userRole =>
+            {
+                userRole.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+                userRole.HasOne(ur => ur.Role)
+                        .WithMany(r => r.UserRoles)
+                        .HasForeignKey(r => r.RoleId)
+                        .IsRequired();
+
+                userRole.HasOne(ur => ur.User)
+                        .WithMany(r => r.UserRoles)
+                        .HasForeignKey(r => r.UserId)
+                        .IsRequired();
+            });
+
             // [N N]
             modelBuilder.Entity<PalestranteEvento>()
                         .HasKey(PE => new { PE.EventoId, PE.PalestranteId });
@@ -30,17 +54,6 @@ namespace ProEventos.Persistence.Contexto
                         .HasMany(e => e.RedesSociais)
                         .WithOne(rs => rs.Palestrante)
                         .OnDelete(DeleteBehavior.Cascade);
-        }
-
-        // This inner class it's nescessary for the migrations
-        public class ProEventosContextDesignFactory : IDesignTimeDbContextFactory<ProEventosContext>
-        {
-            public ProEventosContext CreateDbContext(string[] args)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder<ProEventosContext>()
-                                        .UseNpgsql("Host=localhost;Port=5432;Database=pro_eventos;Username=app_user;Password=app_user");
-                return new ProEventosContext(optionsBuilder.Options);
-            }
         }
     }
 }

@@ -28,7 +28,7 @@ namespace ProEventos.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ProEventosContext>(
-                context => context.UseNpgsql(Configuration.GetConnectionString("Default")));
+                context => context.UseSqlite(Configuration.GetConnectionString("Default")));
 
             services.AddControllers()
                     .AddJsonOptions(options => {options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCasePropertyNamingPolicy();})
