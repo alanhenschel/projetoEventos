@@ -12,6 +12,13 @@ using ProEventos.Persistence.Contexto;
 using ProEventos.Persistence.Contratos;
 using AutoMapper;
 using System;
+using System.Text.Json.Serialization;
+using ProEventos.Domain.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Collections.Generic;
 
 namespace ProEventos.API
 {
@@ -30,19 +37,78 @@ namespace ProEventos.API
             services.AddDbContext<ProEventosContext>(
                 context => context.UseSqlite(Configuration.GetConnectionString("Default")));
 
+            services.AddIdentityCore<User>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
+            })
+            .AddRoles<Role>()
+            .AddRoleManager<RoleManager<Role>>()
+            .AddSignInManager<SignInManager<User>>()
+            .AddRoleValidator<RoleValidator<Role>>()
+            .AddEntityFrameworkStores<ProEventosContext>()
+            .AddDefaultTokenProviders();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.TokenValidationParameters= new TokenValidationParameters
+                        {
+                            ValidateIssuerSigningKey= true,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["TokenKey"])),
+                            ValidateIssuer = false,
+                            ValidateAudience = false
+                        };
+                    });
+
             services.AddControllers()
-                    .AddJsonOptions(options => {options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCasePropertyNamingPolicy();})
+                    .AddJsonOptions(options => {options.JsonSerializerOptions.PropertyNamingPolicy = new SnakeCasePropertyNamingPolicy();
+                                                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());})
+
                     .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<IEventoService, EventoService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IUserService, UserService>();
+
             services.AddScoped<IGeralPersist, GeralPersistence>();
             services.AddScoped<IEventoPersist, EventoPersistence>();
+            services.AddScoped<IUserPersist, UserPersistence>();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ProEventos.API", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "Bearer",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme= "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme 
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
@@ -60,6 +126,7 @@ namespace ProEventos.API
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

@@ -11,6 +11,9 @@ namespace ProEventos.Domain.Identity
     public class User : IdentityUser<Guid>
     {
         public string Descricao { get; set; }
+        public string Password { get; set; }
+        public string PrimeiroNome { get; set; }
+        public string UltimoNome { get; set; }
         public Titulo Titulo { get; set; }
         public Funcao Funcao { get; set; }
         public IEnumerable<UserRole> UserRoles { get; set; }
